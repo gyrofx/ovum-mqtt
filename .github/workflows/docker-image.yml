@@ -8,7 +8,7 @@ on:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository }}/ovum-exporter
+  IMAGE_NAME: ${{ github.repository }}/ovum-mqtt
 
 jobs:
   build-and-push-image:
