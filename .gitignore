@@ -1,0 +1,18 @@
+# Editors
+.idea
+.vscode
+*.swp
+
+# Go build output
+ovum-mqtt
+*.exe
+
+# Go test cache
+*.test
+
+# Dependency directories (Go modules handled by go.sum)
+vendor/
+
+# OS
+.DS_Store
+Thumbs.db

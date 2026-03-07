@@ -1,0 +1,17 @@
+services:
+  ovum-mqtt:
+    build: .
+    image: ovum-mqtt:latest
+    restart: unless-stopped
+    environment:
+      OVUM_METHOD: TCP
+      OVUM_HOST: 192.168.110.20
+      OVUM_PORT: 502
+      OVUM_SLAVE: 247
+      OVUM_MQTT_BROKER: tcp://192.168.110.50:1883
+      OVUM_MQTT_CLIENT_ID: ovum-mqtt
+      OVUM_MQTT_TOPIC_PREFIX: ovum
+      OVUM_MQTT_DEVICE_ID: NHWP06
+      # OVUM_MQTT_USERNAME: user
+      # OVUM_MQTT_PASSWORD: secret
+      OVUM_INTERVAL: 20s

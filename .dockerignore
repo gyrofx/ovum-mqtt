@@ -1,0 +1,47 @@
+# Git
+.git
+.github
+
+# Editor
+.vscode
+.idea
+
+# Go test/build artifacts
+*.test
+ovum-mqtt
+
+# OS
+.DS_Store
+Thumbs.db
+
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Git
+.git/
+.gitignore
+
+# # Documentation
+# *.md
+
+# Test files
+tests/
+test_*
+
+# Development files
+result.json
+*.dump
+*.log
+
+# Misc
+community-samples/
+misc/
+
+# Compose / runtime config (not needed inside the image)
+docker-compose.yml
+mosquitto.conf
