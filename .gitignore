@@ -4,7 +4,7 @@
 *.swp
 
 # Go build output
-ovum-mqtt
+/ovum-mqtt
 *.exe
 
 # Go test cache

@@ -8,7 +8,7 @@
 
 # Go test/build artifacts
 *.test
-ovum-mqtt
+/ovum-mqtt
 
 # OS
 .DS_Store
