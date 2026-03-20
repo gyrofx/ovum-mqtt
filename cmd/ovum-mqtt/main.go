@@ -146,13 +146,18 @@ func run(cfg config.Config) error {
 
 	slog.Info("Starting poll loop", "interval", cfg.PollInterval, "metrics", len(ovum.Metrics))
 
-	// Poll immediately, then on each tick
+	// Poll immediately, then on each tick.
 	if err := poll(mbClient, pub, byte(cfg.Slave), cfg.MQTTDeviceID); err != nil {
 		slog.Error("first poll failed", "err", err)
 	}
 
 	ticker := time.NewTicker(cfg.PollInterval)
 	defer ticker.Stop()
+
+	// consecutiveErrors counts back-to-back poll failures.  Once the threshold
+	// is exceeded the process exits so Docker restarts it with a clean state.
+	const maxConsecutiveErrors = 3
+	consecutiveErrors := 0
 
 	for {
 		select {
@@ -162,7 +167,18 @@ func run(cfg config.Config) error {
 		case <-ticker.C:
 			slog.Debug("poll tick")
 			if err := poll(mbClient, pub, byte(cfg.Slave), cfg.MQTTDeviceID); err != nil {
-				slog.Error("poll error", "err", err)
+				consecutiveErrors++
+				slog.Error("poll error",
+					"consecutive", consecutiveErrors,
+					"max", maxConsecutiveErrors,
+					"err", err)
+				if consecutiveErrors >= maxConsecutiveErrors {
+					slog.Error("too many consecutive poll errors – exiting for container restart",
+						"count", consecutiveErrors)
+					os.Exit(1)
+				}
+			} else {
+				consecutiveErrors = 0
 			}
 		}
 	}
