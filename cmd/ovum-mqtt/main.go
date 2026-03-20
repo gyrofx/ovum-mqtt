@@ -13,7 +13,7 @@ import (
 	"github.com/spf13/viper"
 
 	"github.com/gyrofx/ovum-exporter/internal/config"
-	modbusclient "github.com/gyrofx/ovum-exporter/internal/modbusclient"
+	"github.com/gyrofx/ovum-exporter/internal/modbusclient"
 	"github.com/gyrofx/ovum-exporter/internal/ovum"
 	"github.com/gyrofx/ovum-exporter/internal/publisher"
 )
@@ -36,14 +36,9 @@ func main() {
 		},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			cfg := config.Config{
-				Method:          v.GetString("method"),
 				Host:            v.GetString("host"),
 				Port:            v.GetInt("port"),
 				Slave:           v.GetInt("slave"),
-				ComPort:         v.GetString("comport"),
-				BaudRate:        v.GetInt("baudrate"),
-				Parity:          v.GetString("parity"),
-				StopBits:        v.GetInt("stopbits"),
 				MQTTBroker:      v.GetString("mqtt-broker"),
 				MQTTClientID:    v.GetString("mqtt-client-id"),
 				MQTTUsername:    v.GetString("mqtt-username"),
@@ -58,15 +53,10 @@ func main() {
 
 	f := root.Flags()
 
-	// Modbus
-	f.String("method", defaults.Method, "Modbus connection method: TCP or RTU  [OVUM_METHOD]")
+	// Modbus TCP
 	f.String("host", defaults.Host, "Modbus TCP host IP  [OVUM_HOST]")
 	f.Int("port", defaults.Port, "Modbus TCP port  [OVUM_PORT]")
 	f.Int("slave", defaults.Slave, "Modbus slave / unit ID  [OVUM_SLAVE]")
-	f.String("comport", defaults.ComPort, "Serial port for RTU  [OVUM_COMPORT]")
-	f.Int("baudrate", defaults.BaudRate, "Baud rate for RTU  [OVUM_BAUDRATE]")
-	f.String("parity", defaults.Parity, "Parity for RTU: E, O, or N  [OVUM_PARITY]")
-	f.Int("stopbits", defaults.StopBits, "Stop bits for RTU  [OVUM_STOPBITS]")
 
 	// MQTT
 	f.String("mqtt-broker", defaults.MQTTBroker, "MQTT broker URL  [OVUM_MQTT_BROKER]")
@@ -85,40 +75,17 @@ func main() {
 }
 
 func run(cfg config.Config) error {
-	if cfg.Method == modbusclient.MethodRTU {
-		slog.Info("starting ovum-mqtt",
-			"method", cfg.Method,
-			"port", cfg.ComPort,
-			"baud", cfg.BaudRate,
-			"slave", cfg.Slave,
-			"mqtt_broker", cfg.MQTTBroker,
-			"topic_prefix", cfg.MQTTTopicPrefix,
-			"interval", cfg.PollInterval,
-		)
-	} else {
-		slog.Info("starting ovum-mqtt",
-			"method", cfg.Method,
-			"host", cfg.Host,
-			"port", cfg.Port,
-			"slave", cfg.Slave,
-			"mqtt_broker", cfg.MQTTBroker,
-			"topic_prefix", cfg.MQTTTopicPrefix,
-			"interval", cfg.PollInterval,
-		)
-	}
+	slog.Info("starting ovum-mqtt",
+		"host", cfg.Host,
+		"port", cfg.Port,
+		"slave", cfg.Slave,
+		"mqtt_broker", cfg.MQTTBroker,
+		"topic_prefix", cfg.MQTTTopicPrefix,
+		"interval", cfg.PollInterval,
+	)
 
 	// ---------- Modbus connection ----------
-	var (
-		mbClient *modbusclient.Client
-		err      error
-	)
-	if cfg.Method == modbusclient.MethodRTU {
-		slog.Info("Connecting via Modbus RTU", "port", cfg.ComPort, "baud", cfg.BaudRate)
-		mbClient, err = modbusclient.ConnectRTU(cfg.ComPort, cfg.BaudRate, cfg.Parity, cfg.StopBits)
-	} else {
-		slog.Info("Connecting via Modbus TCP", "host", cfg.Host, "port", cfg.Port)
-		mbClient, err = modbusclient.ConnectTCP(cfg.Host, cfg.Port)
-	}
+	mbClient, err := modbusclient.Connect(cfg.Host, cfg.Port)
 	if err != nil {
 		return err
 	}

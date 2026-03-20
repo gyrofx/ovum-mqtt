@@ -4,15 +4,10 @@ import "time"
 
 // Config holds all runtime configuration for ovum-mqtt.
 type Config struct {
-	// Modbus connection
-	Method   string // "TCP" or "RTU"
-	Host     string
-	Port     int
-	ComPort  string
-	BaudRate int
-	Parity   string // "E", "O", "N"
-	StopBits int
-	Slave    int
+	// Modbus TCP connection
+	Host  string
+	Port  int
+	Slave int
 
 	// MQTT broker
 	MQTTBroker      string // e.g. "tcp://localhost:1883"
@@ -30,13 +25,8 @@ type Config struct {
 // Defaults returns a Config with sensible default values.
 func Defaults() Config {
 	return Config{
-		Method:          "TCP",
 		Host:            "127.0.0.1",
 		Port:            502,
-		ComPort:         "/dev/ttyUSB0",
-		BaudRate:        19200,
-		Parity:          "E",
-		StopBits:        1,
 		Slave:           247,
 		MQTTBroker:      "tcp://localhost:1883",
 		MQTTClientID:    "ovum-mqtt",
